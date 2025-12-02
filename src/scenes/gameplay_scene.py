@@ -108,14 +108,14 @@ class GameplayScene:
         success, message = self.game.game_state.evaluator.evaluate_level(user_code, level)
         
         if success:
-            self.result_label.set_text(f"✓ SUCCESS! {message}")
+            self.result_label.set_text(f"[SUCCESS!] {message}")
             self.game.game_state.complete_current_level()
             
             # Check if game is complete
             if self.game.game_state.is_game_complete():
                 self.game.change_scene(GameScene.VICTORY)
         else:
-            self.result_label.set_text(f"✗ FAILED: {message}")
+            self.result_label.set_text(f"[FAILED] {message}")
     
     def _show_hint(self):
         """Show the next hint."""

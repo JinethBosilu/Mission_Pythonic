@@ -15,9 +15,14 @@ class TitleScene:
     
     def setup(self):
         """Initialize the title scene."""
-        # Create start button
+        # Create start button (centered and responsive)
+        button_width = 300
+        button_height = 60
+        x = (self.game.SCREEN_WIDTH - button_width) // 2
+        y = self.game.SCREEN_HEIGHT // 2
+        
         self.start_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((362, 400), (300, 60)),
+            relative_rect=pygame.Rect((x, y), (button_width, button_height)),
             text='[PRESS START]',
             manager=self.game.ui_manager
         )

@@ -11,9 +11,9 @@
     "case_sensitive": false
   },
   "hints": [
-    "Strings can be converted to integers with int().",
-    "Use int(num1) + int(num2)",
-    "Don't forget print()."
+    "Convert strings to numbers using int(). Example: int(\"123\") becomes 123",
+    "Add them: result = int(num1) + int(num2)",
+    "Print the result: print(result)"
   ],
   "points": 100,
   "difficulty": "beginner"

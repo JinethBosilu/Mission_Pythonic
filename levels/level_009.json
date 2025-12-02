@@ -11,9 +11,9 @@
     "case_sensitive": false
   },
   "hints": [
-    "Use class Bot:",
-    "def __init__(self, name): self.name = name",
-    "In say_hello(), use print(f\"Bot {self.name} reporting!\")"
+    "self.name stores the bot's name. Use it in your print statement",
+    "In say_hello method, print using: f\"Bot {self.name} reporting!\"",
+    "Complete line: print(f\"Bot {self.name} reporting!\") - indent it under def say_hello"
   ],
   "points": 100,
   "difficulty": "advanced"

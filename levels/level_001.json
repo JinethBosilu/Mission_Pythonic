@@ -11,9 +11,9 @@
     "case_sensitive": false
   },
   "hints": [
-    "Use a variable to store the file name.",
-    "Use print() to display it.",
-    "Remember to put quotes around text: \"hacked.txt\""
+    "Store \"hacked.txt\" in the new_name variable. Example: new_name = \"some_text\"",
+    "After the equals sign, type: \"hacked.txt\" (with quotes)",
+    "Then print it with: print(new_name)"
   ],
   "points": 100,
   "difficulty": "beginner"

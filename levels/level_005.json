@@ -11,9 +11,9 @@
     "case_sensitive": false
   },
   "hints": [
-    "Lists use zero-based indexing: first element is messages[0].",
-    "The second element is messages[1].",
-    "Use print(messages[1])."
+    "Lists start counting at 0. So: messages[0]=\"alpha\", messages[1]=\"beta\", messages[2]=\"gamma\"",
+    "To get the second item (beta), use messages[1]",
+    "Complete code: print(messages[1])"
   ],
   "points": 100,
   "difficulty": "intermediate"

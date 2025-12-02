@@ -13,9 +13,14 @@ class VictoryScene:
     
     def setup(self):
         """Initialize the victory scene."""
-        # Create menu button
+        # Create menu button (centered)
+        button_width = 300
+        button_height = 60
+        x = (self.game.SCREEN_WIDTH - button_width) // 2
+        y = self.game.SCREEN_HEIGHT - 150
+        
         self.menu_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((362, 500), (300, 60)),
+            relative_rect=pygame.Rect((x, y), (button_width, button_height)),
             text='RETURN TO MENU',
             manager=self.game.ui_manager
         )

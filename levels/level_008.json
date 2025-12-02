@@ -12,9 +12,9 @@
     "note": "Game will create clue.txt with 'SECRET_MESSAGE: The key is Python!' before testing"
   },
   "hints": [
-    "Use with open(\"clue.txt\", \"r\") as file:",
-    "Use file.read() to read the contents.",
-    "Don't forget to print the contents!"
+    "file.read() reads everything from the file and returns it as text",
+    "Store it: contents = file.read()",
+    "Then print it: print(contents) - make sure both lines are indented under 'with'"
   ],
   "points": 100,
   "difficulty": "advanced",

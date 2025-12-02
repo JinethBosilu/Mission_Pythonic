@@ -14,16 +14,27 @@ class NameInputScene:
     
     def setup(self):
         """Initialize the name input scene."""
-        # Create name input field
+        # Create name input field (centered and responsive)
+        input_width = 400
+        input_height = 50
+        button_width = 300
+        button_height = 50
+        
+        input_x = (self.game.SCREEN_WIDTH - input_width) // 2
+        input_y = self.game.SCREEN_HEIGHT // 2 - 50
+        
+        button_x = (self.game.SCREEN_WIDTH - button_width) // 2
+        button_y = input_y + input_height + 20
+        
         self.name_input = pygame_gui.elements.UITextEntryLine(
-            relative_rect=pygame.Rect((312, 350), (400, 50)),
+            relative_rect=pygame.Rect((input_x, input_y), (input_width, input_height)),
             manager=self.game.ui_manager
         )
         self.name_input.set_text_length_limit(20)
         
         # Create submit button
         self.submit_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((362, 420), (300, 50)),
+            relative_rect=pygame.Rect((button_x, button_y), (button_width, button_height)),
             text='BEGIN MISSION',
             manager=self.game.ui_manager
         )

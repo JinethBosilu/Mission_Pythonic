@@ -25,9 +25,12 @@ class Game:
         pygame.init()
         
         # Screen settings
-        self.SCREEN_WIDTH = 1024
-        self.SCREEN_HEIGHT = 768
-        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        self.SCREEN_WIDTH = 1280
+        self.SCREEN_HEIGHT = 720
+        self.screen = pygame.display.set_mode(
+            (self.SCREEN_WIDTH, self.SCREEN_HEIGHT),
+            pygame.RESIZABLE
+        )
         pygame.display.set_caption("Mission: Pythonic - Hacker Training")
         
         # Clock for FPS
@@ -55,11 +58,12 @@ class Game:
     
     def load_fonts(self):
         """Load fonts for the game."""
-        # Try to load a monospace font for code
-        self.code_font = pygame.font.SysFont('consolas', 14)
-        self.title_font = pygame.font.SysFont('consolas', 48, bold=True)
-        self.heading_font = pygame.font.SysFont('consolas', 24, bold=True)
-        self.text_font = pygame.font.SysFont('consolas', 16)
+        # Try to load a monospace font for code with antialiasing
+        self.code_font = pygame.font.SysFont('consolas', 16)
+        self.title_font = pygame.font.SysFont('consolas', 56, bold=True)
+        self.heading_font = pygame.font.SysFont('consolas', 28, bold=True)
+        self.text_font = pygame.font.SysFont('consolas', 18)
+        self.small_font = pygame.font.SysFont('consolas', 14)
     
     def change_scene(self, scene: GameScene):
         """Change the current game scene."""
@@ -82,6 +86,19 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                
+                # Handle window resize
+                if event.type == pygame.VIDEORESIZE:
+                    self.SCREEN_WIDTH = event.w
+                    self.SCREEN_HEIGHT = event.h
+                    self.screen = pygame.display.set_mode(
+                        (self.SCREEN_WIDTH, self.SCREEN_HEIGHT),
+                        pygame.RESIZABLE
+                    )
+                    self.ui_manager.set_window_resolution((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+                    # Reinitialize current scene for new size
+                    if self.game_state.current_scene in self.scenes:
+                        self.scenes[self.game_state.current_scene].setup()
                 
                 # Pass events to UI manager
                 self.ui_manager.process_events(event)

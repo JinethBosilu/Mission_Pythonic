@@ -11,9 +11,9 @@
     "case_sensitive": false
   },
   "hints": [
-    "Use def greet(name):",
-    "Use print() inside the function.",
-    "Use an f-string: print(f\"Hello, {name}!\")"
+    "F-strings let you put variables in text: f\"Hello, {name}!\" puts the name variable inside",
+    "Inside the function, use: print(f\"Hello, {name}!\")",
+    "Make sure print is indented under the def line"
   ],
   "points": 100,
   "difficulty": "intermediate"

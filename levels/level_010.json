@@ -12,9 +12,9 @@
     "must_be_integer": true
   },
   "hints": [
-    "import random",
-    "Use random.randint(1, 10)",
-    "Print the result: print(num)"
+    "random.randint(1, 10) generates a random number from 1 to 10",
+    "Store it in num: num = random.randint(1, 10)",
+    "Then print it: print(num)"
   ],
   "points": 100,
   "difficulty": "advanced"

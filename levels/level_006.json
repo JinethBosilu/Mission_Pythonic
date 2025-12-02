@@ -11,9 +11,9 @@
     "case_sensitive": false
   },
   "hints": [
-    "Access dictionary values using users[\"neo\"].",
-    "Don't forget the quotes around the key name.",
-    "Use print(users[\"neo\"])."
+    "Dictionaries use keys to get values. Like: users[\"neo\"] gets \"redpill\"",
+    "Remember to use quotes around the key: users[\"neo\"]",
+    "Complete code: print(users[\"neo\"])"
   ],
   "points": 100,
   "difficulty": "intermediate"

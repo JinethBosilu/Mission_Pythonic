@@ -40,7 +40,7 @@ class LevelSelectScene:
             # Create button
             button_text = f"Level {i+1}"
             if is_completed:
-                button_text += " ✓"
+                button_text += " [DONE]"
             
             button = pygame_gui.elements.UIButton(
                 relative_rect=pygame.Rect((x, y), (button_width, button_height)),

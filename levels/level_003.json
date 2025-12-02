@@ -19,9 +19,9 @@
     ]
   },
   "hints": [
-    "Use if, else statements.",
-    "Compare numbers with >.",
-    "Don't forget the colon : after if and else"
+    "Check if security_level is greater than 5: if security_level > 5:",
+    "Print \"Alert!\" inside the if block (remember to indent!)",
+    "Add else: and print \"Safe\" (also indented)"
   ],
   "points": 100,
   "difficulty": "beginner"
