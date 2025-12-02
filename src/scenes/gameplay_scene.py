@@ -192,6 +192,15 @@ class GameplayScene:
             else:
                 self.result_label.set_text(f"[{sass}] Earned: {points_earned} pts")
             
+            # Spawn success particles
+            for i in range(50):
+                self.game.spawn_particles(
+                    self.game.SCREEN_WIDTH // 2,
+                    self.game.SCREEN_HEIGHT // 2,
+                    count=1,
+                    color=self.game.GREEN
+                )
+            
             # Show next level button
             if not self.game.game_state.is_game_complete():
                 self.next_button.show()
@@ -346,13 +355,26 @@ class GameplayScene:
         screen.blit(timer_surface, (20, 420))
     
     def _draw_text_panel(self, screen, title, text, x, y, width, height):
-        """Draw a bordered text panel."""
-        # Draw border
-        pygame.draw.rect(screen, self.game.DARK_GREEN, (x, y, width, height), 2)
+        """Draw a bordered text panel with glow effect."""
+        # Draw background with slight transparency effect
+        panel_surface = pygame.Surface((width, height))
+        panel_surface.set_alpha(30)
+        panel_surface.fill(self.game.DARK_GREEN)
+        screen.blit(panel_surface, (x, y))
         
-        # Draw title
-        title_surface = self.game.text_font.render(title, True, self.game.GREEN)
-        screen.blit(title_surface, (x + 10, y + 5))
+        # Draw double border for depth
+        pygame.draw.rect(screen, self.game.DARK_GREEN, (x, y, width, height), 2)
+        pygame.draw.rect(screen, self.game.GREEN, (x + 2, y + 2, width - 4, height - 4), 1)
+        
+        # Draw corner accents
+        corner_size = 10
+        corners = [(x, y), (x + width, y), (x, y + height), (x + width, y + height)]
+        for cx, cy in corners:
+            pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx - 5, cy), (cx + 5, cy), 2)
+            pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy - 5), (cx, cy + 5), 2)
+        
+        # Draw title with glow
+        self.game.draw_glow_text(screen, title, (x + 10, y + 5), self.game.text_font, self.game.BRIGHT_GREEN, glow_size=1, center=False)
         
         # Draw text (word wrap)
         words = text.split(' ')

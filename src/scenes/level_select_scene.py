@@ -12,6 +12,8 @@ class LevelSelectScene:
         self.level_buttons = []
         self.back_button = None
         self.quit_button = None
+        self.hover_pulse = 0
+        self.progress_pulse = 0
     
     def setup(self):
         """Initialize the level select scene."""
@@ -102,40 +104,64 @@ class LevelSelectScene:
     
     def update(self, dt):
         """Update level select scene."""
-        pass
+        self.hover_pulse += dt * 3
+        self.progress_pulse += dt * 2
     
     def draw(self, screen):
         """Draw level select scene."""
-        # Draw header
-        header_text = self.game.heading_font.render(
-            f"SELECT MISSION - Agent: {self.game.game_state.player_name}", 
-            True, 
-            self.game.GREEN
-        )
-        header_rect = header_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 80))
-        screen.blit(header_text, header_rect)
+        import math
         
-        # Draw progress
+        # Draw glowing header
+        header_x = self.game.SCREEN_WIDTH // 2
+        self.game.draw_glow_text(
+            screen,
+            f"SELECT MISSION - Agent: {self.game.game_state.player_name}",
+            (header_x, 80),
+            self.game.heading_font,
+            self.game.BRIGHT_GREEN,
+            glow_size=2
+        )
+        
+        # Draw progress with glow
         total_levels = self.game.game_state.level_loader.get_level_count()
         completed = len(self.game.game_state.completed_levels)
-        progress_text = self.game.text_font.render(
-            f"Progress: {completed}/{total_levels} | Total Score: {self.game.game_state.total_score}", 
-            True, 
-            self.game.DARK_GREEN
+        self.game.draw_glow_text(
+            screen,
+            f"Progress: {completed}/{total_levels} | Total Score: {self.game.game_state.total_score}",
+            (self.game.SCREEN_WIDTH // 2, 110),
+            self.game.text_font,
+            self.game.GREEN,
+            glow_size=1
         )
-        progress_rect = progress_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 110))
-        screen.blit(progress_text, progress_rect)
         
-        # Draw progress bar
+        # Draw enhanced progress bar
         bar_width = 400
         bar_height = 20
         bar_x = (self.game.SCREEN_WIDTH - bar_width) // 2
         bar_y = 130
         
-        # Draw background
-        pygame.draw.rect(screen, self.game.GRAY, (bar_x, bar_y, bar_width, bar_height), 2)
+        # Draw outer glow
+        glow_alpha = int(50 + 20 * math.sin(self.progress_pulse))
+        glow_surface = pygame.Surface((bar_width + 10, bar_height + 10))
+        glow_surface.set_alpha(glow_alpha)
+        glow_surface.fill(self.game.DARK_GREEN)
+        screen.blit(glow_surface, (bar_x - 5, bar_y - 5))
         
-        # Draw progress fill
-        fill_width = int((completed / total_levels) * bar_width) if total_levels > 0 else 0
+        # Draw double border
+        pygame.draw.rect(screen, self.game.DARK_GREEN, (bar_x, bar_y, bar_width, bar_height), 2)
+        pygame.draw.rect(screen, self.game.GREEN, (bar_x + 2, bar_y + 2, bar_width - 4, bar_height - 4), 1)
+        
+        # Draw progress fill with pulse
+        fill_width = int((completed / total_levels) * (bar_width - 8)) if total_levels > 0 else 0
         if fill_width > 0:
-            pygame.draw.rect(screen, self.game.GREEN, (bar_x + 2, bar_y + 2, fill_width - 4, bar_height - 4))
+            # Pulsing fill
+            pulse_brightness = int(200 + 55 * math.sin(self.progress_pulse))
+            fill_color = (0, pulse_brightness, 0)
+            pygame.draw.rect(screen, fill_color, (bar_x + 4, bar_y + 4, fill_width, bar_height - 8))
+            
+            # Draw corner accents on progress bar
+            corner_size = 5
+            pygame.draw.line(screen, self.game.BRIGHT_GREEN, (bar_x, bar_y), (bar_x + corner_size, bar_y), 2)
+            pygame.draw.line(screen, self.game.BRIGHT_GREEN, (bar_x, bar_y), (bar_x, bar_y + corner_size), 2)
+            pygame.draw.line(screen, self.game.BRIGHT_GREEN, (bar_x + bar_width, bar_y), (bar_x + bar_width - corner_size, bar_y), 2)
+            pygame.draw.line(screen, self.game.BRIGHT_GREEN, (bar_x + bar_width, bar_y), (bar_x + bar_width, bar_y + corner_size), 2)

@@ -10,12 +10,19 @@ class VictoryScene:
     def __init__(self, game):
         self.game = game
         self.menu_button = None
+        self.pulse_timer = 0
+        self.scroll_offset = 0
+        self.particles_spawned = False
     
     def setup(self):
         """Initialize the victory scene."""
         # Cleanup old elements
         if self.menu_button is not None:
             self.menu_button.kill()
+        
+        # Reset animation state
+        self.particles_spawned = False
+        self.scroll_offset = 0
         
         # Create menu button (centered)
         button_width = 300
@@ -37,43 +44,97 @@ class VictoryScene:
     
     def update(self, dt):
         """Update victory scene."""
-        pass
+        self.pulse_timer += dt * 2
+        self.scroll_offset += 20 * dt
+        
+        # Spawn particles once at start
+        if not self.particles_spawned:
+            self.particles_spawned = True
+            # Spawn multiple particle bursts across screen
+            for i in range(5):
+                x = (i + 1) * (self.game.SCREEN_WIDTH // 6)
+                self.game.spawn_particles(x, 150, 30, self.game.BRIGHT_GREEN)
     
     def draw(self, screen):
         """Draw victory scene."""
-        # Draw congratulations message
-        congrats_text = self.game.title_font.render("MISSION COMPLETE!", True, self.game.GREEN)
-        congrats_rect = congrats_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 200))
-        screen.blit(congrats_text, congrats_rect)
+        import math
         
-        # Draw player name
-        name_text = self.game.heading_font.render(
-            f"Agent {self.game.game_state.player_name}", 
-            True, 
-            self.game.BRIGHT_GREEN
+        # Draw pulsing glowing congratulations message
+        pulse = math.sin(self.pulse_timer)
+        pulse_size = int(3 + pulse * 1.5)
+        self.game.draw_glow_text(
+            screen,
+            "MISSION COMPLETE!",
+            (self.game.SCREEN_WIDTH // 2, 200),
+            self.game.title_font,
+            self.game.BRIGHT_GREEN,
+            glow_size=pulse_size
         )
-        name_rect = name_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 280))
-        screen.blit(name_text, name_rect)
         
-        # Draw final score
-        score_text = self.game.heading_font.render(
-            f"Final Score: {self.game.game_state.total_score}", 
-            True, 
-            self.game.GREEN
+        # Draw border box around title
+        box_width = 600
+        box_height = 120
+        box_x = (self.game.SCREEN_WIDTH - box_width) // 2
+        box_y = 160
+        pygame.draw.rect(screen, self.game.DARK_GREEN, (box_x, box_y, box_width, box_height), 3)
+        pygame.draw.rect(screen, self.game.GREEN, (box_x + 4, box_y + 4, box_width - 8, box_height - 8), 1)
+        
+        # Draw corner brackets
+        corner_size = 20
+        corners = [
+            (box_x, box_y),
+            (box_x + box_width, box_y),
+            (box_x, box_y + box_height),
+            (box_x + box_width, box_y + box_height)
+        ]
+        for cx, cy in corners:
+            if cx == box_x:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx + corner_size, cy), 3)
+            else:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx - corner_size, cy), 3)
+            
+            if cy == box_y:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx, cy + corner_size), 3)
+            else:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx, cy - corner_size), 3)
+        
+        # Draw player name with glow
+        self.game.draw_glow_text(
+            screen,
+            f"Agent {self.game.game_state.player_name}",
+            (self.game.SCREEN_WIDTH // 2, 310),
+            self.game.heading_font,
+            self.game.BRIGHT_GREEN,
+            glow_size=2
         )
-        score_rect = score_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 340))
-        screen.blit(score_text, score_rect)
         
-        # Draw success message
+        # Draw final score with glow
+        self.game.draw_glow_text(
+            screen,
+            f"Final Score: {self.game.game_state.total_score}",
+            (self.game.SCREEN_WIDTH // 2, 360),
+            self.game.heading_font,
+            self.game.GREEN,
+            glow_size=2
+        )
+        
+        # Draw scrolling success message with subtle animation
         success_lines = [
             "You have successfully completed all Python hacking missions.",
             "Your skills are now at expert level.",
             "The Matrix awaits your next adventure..."
         ]
         
-        y = 400
-        for line in success_lines:
-            line_text = self.game.text_font.render(line, True, self.game.DARK_GREEN)
-            line_rect = line_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, y))
-            screen.blit(line_text, line_rect)
-            y += 30
+        y = 420
+        for i, line in enumerate(success_lines):
+            # Add subtle wave effect to text position
+            wave_offset = int(5 * math.sin(self.pulse_timer + i * 0.5))
+            self.game.draw_glow_text(
+                screen,
+                line,
+                (self.game.SCREEN_WIDTH // 2 + wave_offset, y),
+                self.game.text_font,
+                self.game.GREEN,
+                glow_size=1
+            )
+            y += 35

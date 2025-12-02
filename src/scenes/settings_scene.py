@@ -13,6 +13,7 @@ class SettingsScene:
         self.back_button = None
         self.is_fullscreen = False
         self.previous_scene = GameScene.TITLE
+        self.pulse_timer = 0
     
     def setup(self, previous_scene=GameScene.TITLE):
         """Initialize the settings scene."""
@@ -70,14 +71,50 @@ class SettingsScene:
     
     def update(self, dt):
         """Update settings scene."""
-        pass
+        self.pulse_timer += dt * 2
     
     def draw(self, screen):
         """Draw settings scene."""
-        # Draw title
-        title_text = self.game.heading_font.render("SETTINGS", True, self.game.GREEN)
-        title_rect = title_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 150))
-        screen.blit(title_text, title_rect)
+        import math
+        
+        # Draw glowing pulsing title
+        pulse = math.sin(self.pulse_timer)
+        pulse_size = int(2 + pulse)
+        self.game.draw_glow_text(
+            screen,
+            "SETTINGS",
+            (self.game.SCREEN_WIDTH // 2, 150),
+            self.game.heading_font,
+            self.game.BRIGHT_GREEN,
+            glow_size=pulse_size
+        )
+        
+        # Draw border box around title
+        box_width = 350
+        box_height = 80
+        box_x = (self.game.SCREEN_WIDTH - box_width) // 2
+        box_y = 120
+        pygame.draw.rect(screen, self.game.DARK_GREEN, (box_x, box_y, box_width, box_height), 2)
+        pygame.draw.rect(screen, self.game.GREEN, (box_x + 3, box_y + 3, box_width - 6, box_height - 6), 1)
+        
+        # Draw corner brackets
+        corner_size = 12
+        corners = [
+            (box_x, box_y),
+            (box_x + box_width, box_y),
+            (box_x, box_y + box_height),
+            (box_x + box_width, box_y + box_height)
+        ]
+        for cx, cy in corners:
+            if cx == box_x:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx + corner_size, cy), 2)
+            else:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx - corner_size, cy), 2)
+            
+            if cy == box_y:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx, cy + corner_size), 2)
+            else:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx, cy - corner_size), 2)
         
         # Draw info text
         info_text = self.game.text_font.render(

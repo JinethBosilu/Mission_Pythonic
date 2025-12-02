@@ -15,6 +15,8 @@ class PauseScene:
         self.menu_button = None
         self.quit_button = None
         self.overlay_surface = None
+        self.pulse_timer = 0
+        self.scan_line_y = 0
     
     def setup(self):
         """Initialize the pause scene."""
@@ -104,19 +106,69 @@ class PauseScene:
     
     def update(self, dt):
         """Update pause scene."""
-        pass
+        self.pulse_timer += dt * 2
+        self.scan_line_y += 300 * dt
+        if self.scan_line_y > self.game.SCREEN_HEIGHT:
+            self.scan_line_y = 0
     
     def draw(self, screen):
         """Draw pause scene."""
+        import math
+        
         # Draw semi-transparent overlay
         screen.blit(self.overlay_surface, (0, 0))
         
-        # Draw PAUSED title
-        title_text = self.game.title_font.render("PAUSED", True, self.game.GREEN)
-        title_rect = title_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 150))
-        screen.blit(title_text, title_rect)
+        # Draw scan line effect
+        if int(self.scan_line_y) % 4 == 0:
+            pygame.draw.line(screen, self.game.DARK_GREEN, (0, int(self.scan_line_y)), (self.game.SCREEN_WIDTH, int(self.scan_line_y)), 2)
         
-        # Draw instructions
-        instruction_text = self.game.text_font.render("Press ESC to resume", True, self.game.DARK_GREEN)
-        instruction_rect = instruction_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 200))
-        screen.blit(instruction_text, instruction_rect)
+        # Draw glowing pulsing PAUSED title
+        pulse = math.sin(self.pulse_timer)
+        pulse_size = int(2 + pulse)
+        self.game.draw_glow_text(
+            screen,
+            "PAUSED",
+            (self.game.SCREEN_WIDTH // 2, 150),
+            self.game.title_font,
+            self.game.BRIGHT_GREEN,
+            glow_size=pulse_size
+        )
+        
+        # Draw border box around title
+        box_width = 400
+        box_height = 100
+        box_x = (self.game.SCREEN_WIDTH - box_width) // 2
+        box_y = 120
+        pygame.draw.rect(screen, self.game.DARK_GREEN, (box_x, box_y, box_width, box_height), 2)
+        pygame.draw.rect(screen, self.game.GREEN, (box_x + 3, box_y + 3, box_width - 6, box_height - 6), 1)
+        
+        # Draw corner brackets
+        corner_size = 15
+        corners = [
+            (box_x, box_y),
+            (box_x + box_width, box_y),
+            (box_x, box_y + box_height),
+            (box_x + box_width, box_y + box_height)
+        ]
+        for cx, cy in corners:
+            # Horizontal lines
+            if cx == box_x:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx + corner_size, cy), 2)
+            else:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx - corner_size, cy), 2)
+            
+            # Vertical lines
+            if cy == box_y:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx, cy + corner_size), 2)
+            else:
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (cx, cy), (cx, cy - corner_size), 2)
+        
+        # Draw instructions with glow
+        self.game.draw_glow_text(
+            screen,
+            "Press ESC to resume",
+            (self.game.SCREEN_WIDTH // 2, 200),
+            self.game.text_font,
+            self.game.GREEN,
+            glow_size=1
+        )

@@ -15,6 +15,8 @@ class TitleScene:
         self.quit_button = None
         self.blink_timer = 0
         self.show_text = True
+        self.pulse_timer = 0
+        self.scan_line_y = 0
     
     def setup(self):
         """Initialize the title scene."""
@@ -103,22 +105,62 @@ class TitleScene:
         if self.blink_timer >= 0.5:
             self.blink_timer = 0
             self.show_text = not self.show_text
+        
+        # Pulse effect
+        self.pulse_timer += dt * 2
+        
+        # Scan line effect
+        self.scan_line_y += 5
+        if self.scan_line_y > self.game.SCREEN_HEIGHT:
+            self.scan_line_y = 0
     
     def draw(self, screen):
         """Draw title scene."""
-        # Draw title
-        if self.show_text:
-            title_text = self.game.title_font.render("MISSION: PYTHONIC", True, self.game.GREEN)
-            title_rect = title_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 200))
-            screen.blit(title_text, title_rect)
+        import math
         
-        # Draw subtitle
-        subtitle_text = self.game.text_font.render("Hacker Training Protocol", True, self.game.DARK_GREEN)
+        # Draw scan line effect
+        for i in range(0, self.game.SCREEN_HEIGHT, 4):
+            alpha = 20 if (i + self.scan_line_y) % 8 == 0 else 10
+            pygame.draw.line(screen, (0, alpha, 0), (0, i), (self.game.SCREEN_WIDTH, i), 1)
+        
+        # Draw title with glow and pulse
+        if self.show_text:
+            pulse = abs(math.sin(self.pulse_timer)) * 0.3 + 0.7
+            title_color = (0, int(255 * pulse), 0)
+            self.game.draw_glow_text(screen, "MISSION: PYTHONIC", 
+                                    (self.game.SCREEN_WIDTH // 2, 210),
+                                    self.game.title_font, title_color, glow_size=3, center=True)
+        
+        # Draw glowing border box around title area
+        border_rect = pygame.Rect(100, 150, self.game.SCREEN_WIDTH - 200, 150)
+        pygame.draw.rect(screen, self.game.DARK_GREEN, border_rect, 2)
+        pygame.draw.rect(screen, (0, 50, 0), border_rect, 1)
+        
+        # Draw subtitle with flicker
+        subtitle_text = self.game.text_font.render("Hacker Training Protocol", True, self.game.BRIGHT_GREEN)
         subtitle_rect = subtitle_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 270))
         screen.blit(subtitle_text, subtitle_rect)
         
-        # Draw Matrix rain effect (simple version)
-        self._draw_matrix_rain(screen)
+        # Draw corner brackets (hacker UI style)
+        corner_size = 20
+        corners = [
+            (100, 150), (self.game.SCREEN_WIDTH - 100, 150),
+            (100, 300), (self.game.SCREEN_WIDTH - 100, 300)
+        ]
+        for x, y in corners:
+            # Draw brackets based on corner position
+            if x == 100:  # Left side
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (x, y), (x + corner_size, y), 3)
+                if y == 150:  # Top left
+                    pygame.draw.line(screen, self.game.BRIGHT_GREEN, (x, y), (x, y + corner_size), 3)
+                else:  # Bottom left
+                    pygame.draw.line(screen, self.game.BRIGHT_GREEN, (x, y), (x, y - corner_size), 3)
+            else:  # Right side
+                pygame.draw.line(screen, self.game.BRIGHT_GREEN, (x, y), (x - corner_size, y), 3)
+                if y == 150:  # Top right
+                    pygame.draw.line(screen, self.game.BRIGHT_GREEN, (x, y), (x, y + corner_size), 3)
+                else:  # Bottom right
+                    pygame.draw.line(screen, self.game.BRIGHT_GREEN, (x, y), (x, y - corner_size), 3)
     
     def _draw_matrix_rain(self, screen):
         """Draw a simple Matrix rain effect in the background."""
