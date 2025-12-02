@@ -197,7 +197,12 @@ class Game:
                     # Clear and reinitialize current scene for new size
                     self.ui_manager.clear_and_reset()
                     if self.game_state.current_scene in self.scenes:
-                        self.scenes[self.game_state.current_scene].setup()
+                        scene = self.scenes[self.game_state.current_scene]
+                        # Preserve timer on resize if scene supports it
+                        if hasattr(scene, 'setup') and hasattr(scene.setup, '__code__') and 'preserve_timer' in scene.setup.__code__.co_varnames:
+                            scene.setup(preserve_timer=True)
+                        else:
+                            scene.setup()
                 
                 # Pass events to UI manager
                 self.ui_manager.process_events(event)
@@ -235,6 +240,10 @@ class Game:
             self.draw_particles(self.screen)
             
             self.ui_manager.draw_ui(self.screen)
+            
+            # Draw post-UI overlays (must be after UI manager)
+            if current_scene and hasattr(current_scene, 'draw_overlay'):
+                current_scene.draw_overlay(self.screen)
             
             pygame.display.flip()
         

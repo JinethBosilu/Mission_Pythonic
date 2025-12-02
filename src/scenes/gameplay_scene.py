@@ -20,8 +20,14 @@ class GameplayScene:
         self.level_completed = False
         self.flash_screen = False
         self.flash_timer = 0
+        self.timeout_overlay = False
+        self.timeout_restart_button = None
+        self.timeout_menu_button = None
+        self.timeout_message = ""
+        self.timeout_restart_rect = None
+        self.timeout_menu_rect = None
     
-    def setup(self):
+    def setup(self, preserve_timer=False):
         """Initialize the gameplay scene."""
         level = self.game.game_state.get_current_level()
         if not level:
@@ -48,8 +54,9 @@ class GameplayScene:
         if self.result_label is not None:
             self.result_label.kill()
         
-        # Start timer for this level
-        self.game.game_state.start_level_timer()
+        # Start timer for this level (unless preserving from resize)
+        if not preserve_timer:
+            self.game.game_state.start_level_timer()
         
         # Code editor text box
         self.code_textbox = pygame_gui.elements.UITextBox(
@@ -134,9 +141,20 @@ class GameplayScene:
                 self._restart_level()
             elif event.ui_element == self.next_button:
                 self._next_level()
+
             elif event.ui_element == self.back_button:
                 self.game.game_state.stop_timer()
                 self.game.change_scene(GameScene.LEVEL_SELECT)
+        
+        # Handle mouse clicks on timeout overlay buttons
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self.timeout_overlay:
+                mouse_pos = pygame.mouse.get_pos()
+                if self.timeout_restart_rect and self.timeout_restart_rect.collidepoint(mouse_pos):
+                    self._restart_level()
+                elif self.timeout_menu_rect and self.timeout_menu_rect.collidepoint(mouse_pos):
+                    self.game.game_state.stop_timer()
+                    self.game.change_scene(GameScene.LEVEL_SELECT)
         
         # Handle keyboard shortcuts
         if event.type == pygame.KEYDOWN:
@@ -159,11 +177,6 @@ class GameplayScene:
         
         # Check if time is up
         if self.game.game_state.is_time_up():
-            troll_msg = self.game.game_state.get_time_up_message()
-            self.result_label.set_text(f"[SYSTEM LOCKOUT] {troll_msg}")
-            # Flash screen red
-            self.flash_screen = True
-            self.flash_timer = 0.5
             return
         
         # Evaluate the code
@@ -267,6 +280,29 @@ class GameplayScene:
         self.game.game_state.user_code = level.solution
         self.result_label.set_text(random.choice(solution_taunts))
     
+    def _show_timeout_overlay(self):
+        """Show timeout overlay with restart and menu buttons."""
+        # Store button rectangles for click detection
+        button_width = 250
+        button_height = 50
+        spacing = 20
+        center_x = self.game.SCREEN_WIDTH // 2
+        center_y = self.game.SCREEN_HEIGHT // 2
+        
+        self.timeout_restart_rect = pygame.Rect(
+            center_x - button_width - spacing // 2, 
+            center_y + 80,
+            button_width, 
+            button_height
+        )
+        
+        self.timeout_menu_rect = pygame.Rect(
+            center_x + spacing // 2, 
+            center_y + 80,
+            button_width, 
+            button_height
+        )
+    
     def _restart_level(self):
         """Restart the current level."""
         level = self.game.game_state.get_current_level()
@@ -281,6 +317,12 @@ class GameplayScene:
         self.result_label.set_text("Level restarted.")
         self.level_completed = False
         self.next_button.hide()
+        
+        # Reset timeout overlay
+        self.timeout_overlay = False
+        self.timeout_message = ""
+        self.timeout_restart_rect = None
+        self.timeout_menu_rect = None
         
         # Restart timer
         self.game.game_state.start_level_timer()
@@ -297,6 +339,14 @@ class GameplayScene:
     
     def update(self, dt):
         """Update gameplay scene."""
+        # Check if time is up (not during level completion)
+        if not self.level_completed and not self.timeout_overlay and self.game.game_state.is_time_up():
+            self.timeout_overlay = True
+            self.timeout_message = self.game.game_state.get_time_up_message()
+            self.flash_screen = True
+            self.flash_timer = 0.3
+            self._show_timeout_overlay()
+        
         # Update flash effect
         if self.flash_screen:
             self.flash_timer -= dt
@@ -353,6 +403,119 @@ class GameplayScene:
         
         timer_surface = self.game.heading_font.render(timer_text, True, timer_color)
         screen.blit(timer_surface, (20, 420))
+    
+    def draw_overlay(self, screen):
+        """Draw overlays that should appear on top of UI elements."""
+        # Draw timeout overlay if active
+        if self.timeout_overlay:
+            self._draw_timeout_overlay(screen)
+    
+    def _draw_timeout_overlay(self, screen):
+        """Draw the timeout overlay on top of everything."""
+        import math
+        # Semi-transparent dark overlay
+        overlay = pygame.Surface((self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT))
+        overlay.set_alpha(220)
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
+        
+        # Use stored troll message
+        troll_msg = self.timeout_message
+        
+        # Draw border box
+        box_width = 700
+        box_height = 300
+        box_x = (self.game.SCREEN_WIDTH - box_width) // 2
+        box_y = (self.game.SCREEN_HEIGHT - box_height) // 2 - 20
+        
+        pygame.draw.rect(screen, self.game.RED, (box_x, box_y, box_width, box_height), 3)
+        pygame.draw.rect(screen, self.game.DARK_GREEN, (box_x + 4, box_y + 4, box_width - 8, box_height - 8), 1)
+        
+        # Draw corner brackets
+        corner_size = 20
+        corners = [
+            (box_x, box_y),
+            (box_x + box_width, box_y),
+            (box_x, box_y + box_height),
+            (box_x + box_width, box_y + box_height)
+        ]
+        for cx, cy in corners:
+            if cx == box_x:
+                pygame.draw.line(screen, self.game.RED, (cx, cy), (cx + corner_size, cy), 4)
+            else:
+                pygame.draw.line(screen, self.game.RED, (cx, cy), (cx - corner_size, cy), 4)
+            
+            if cy == box_y:
+                pygame.draw.line(screen, self.game.RED, (cx, cy), (cx, cy + corner_size), 4)
+            else:
+                pygame.draw.line(screen, self.game.RED, (cx, cy), (cx, cy - corner_size), 4)
+        
+        # Draw TIME'S UP title
+        self.game.draw_glow_text(
+            screen,
+            "TIME'S UP!",
+            (self.game.SCREEN_WIDTH // 2, box_y + 60),
+            self.game.title_font,
+            self.game.RED,
+            glow_size=3,
+            center=True
+        )
+        
+        # Draw troll message (word wrap)
+        words = troll_msg.split(' ')
+        lines = []
+        current_line = ""
+        
+        for word in words:
+            test_line = current_line + word + " "
+            test_surface = self.game.text_font.render(test_line, True, self.game.GREEN)
+            if test_surface.get_width() <= box_width - 80:
+                current_line = test_line
+            else:
+                if current_line:
+                    lines.append(current_line.strip())
+                current_line = word + " "
+        
+        if current_line:
+            lines.append(current_line.strip())
+        
+        # Draw lines
+        line_y = box_y + 140
+        for line in lines:
+            self.game.draw_glow_text(
+                screen,
+                line,
+                (self.game.SCREEN_WIDTH // 2, line_y),
+                self.game.text_font,
+                self.game.GREEN,
+                glow_size=1,
+                center=True
+            )
+            line_y += 30
+        
+        # Draw custom buttons on top of overlay
+        if self.timeout_restart_rect and self.timeout_menu_rect:
+            mouse_pos = pygame.mouse.get_pos()
+            
+            # Restart button
+            restart_hover = self.timeout_restart_rect.collidepoint(mouse_pos)
+            restart_color = self.game.BRIGHT_GREEN if restart_hover else self.game.GREEN
+            pygame.draw.rect(screen, restart_color, self.timeout_restart_rect, 3)
+            pygame.draw.rect(screen, (0, 0, 0), self.timeout_restart_rect)
+            
+            restart_text = self.game.text_font.render('RESTART LEVEL', True, restart_color)
+            restart_text_rect = restart_text.get_rect(center=self.timeout_restart_rect.center)
+            screen.blit(restart_text, restart_text_rect)
+            
+            # Menu button
+            menu_hover = self.timeout_menu_rect.collidepoint(mouse_pos)
+            menu_color = self.game.BRIGHT_GREEN if menu_hover else self.game.GREEN
+            pygame.draw.rect(screen, menu_color, self.timeout_menu_rect, 3)
+            pygame.draw.rect(screen, (0, 0, 0), self.timeout_menu_rect)
+            
+            menu_text = self.game.text_font.render('BACK TO MENU', True, menu_color)
+            menu_text_rect = menu_text.get_rect(center=self.timeout_menu_rect.center)
+            screen.blit(menu_text, menu_text_rect)
     
     def _draw_text_panel(self, screen, title, text, x, y, width, height):
         """Draw a bordered text panel with glow effect."""
