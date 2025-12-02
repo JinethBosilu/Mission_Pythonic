@@ -18,13 +18,19 @@ A Pygame-based educational game that teaches Python programming through hacker-t
 - Windows, macOS, or Linux
 
 ### Setup
-```powershell
-cd D:\Project\Game\Mission_Pythonic
+```bash
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/Mission_Pythonic.git
+cd Mission_Pythonic
 
 # Create virtual environment
 python -m venv venv
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # macOS/Linux
+
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -71,9 +77,23 @@ Mission_Pythonic/
 ```
 
 ### Building Executable
-```powershell
-pyinstaller --onefile --windowed --add-data "levels;levels" --add-data "assets;assets" main.py
+
+For developers who want to build a standalone executable:
+
+```bash
+# Install PyInstaller
+pip install pyinstaller
+
+# Run the build script
+python build_game.py
+
+# The executable will be in the dist/ folder
+# Don't forget to include the levels/ folder when distributing
 ```
+
+### Download Pre-built Executable
+
+Check the [Releases](https://github.com/YOUR_USERNAME/Mission_Pythonic/releases) page for pre-built executables.
 
 ## License
 

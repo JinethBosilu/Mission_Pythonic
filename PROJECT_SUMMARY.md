@@ -96,8 +96,9 @@ All 10 levels follow a simplified design philosophy:
 
 ### Setup
 ```bash
-# 1. Navigate to project
-cd d:\Project\Game\Mission_Pythonic
+# 1. Clone and navigate to project
+git clone https://github.com/YOUR_USERNAME/Mission_Pythonic.git
+cd Mission_Pythonic
 
 # 2. (Optional) Create virtual environment
 python -m venv venv
