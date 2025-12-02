@@ -1,0 +1,21 @@
+{
+  "id": "level_010",
+  "title": "Modules & Libraries",
+  "mission_log": "Time-sensitive mission! Use Python's libraries to generate random passwords.",
+  "challenge": "Use random module to print a random number between 1 and 10.",
+  "starter_code": "# Import the random module\nimport random\n\n# Generate and print a random number\nnum = \nprint()",
+  "solution": "import random\nnum = random.randint(1, 10)\nprint(num)",
+  "checker": {
+    "type": "output_range",
+    "min": 1,
+    "max": 10,
+    "must_be_integer": true
+  },
+  "hints": [
+    "import random",
+    "Use random.randint(1, 10)",
+    "Print the result: print(num)"
+  ],
+  "points": 100,
+  "difficulty": "advanced"
+}

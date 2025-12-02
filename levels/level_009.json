@@ -1,0 +1,20 @@
+{
+  "id": "level_009",
+  "title": "Classes & Objects",
+  "mission_log": "Simulate hacker bots to complete parallel missions.",
+  "challenge": "Create a class Bot with attribute name and method say_hello() that prints \"Bot <name> reporting!\".",
+  "starter_code": "# Define the Bot class\nclass Bot:\n    def __init__(self, name):\n        self.name = name\n    \n    def say_hello(self):\n        print()\n\n# Test it\nb = Bot(\"Alpha\")\nb.say_hello()",
+  "solution": "class Bot:\n    def __init__(self, name):\n        self.name = name\n    \n    def say_hello(self):\n        print(f\"Bot {self.name} reporting!\")\n\nb = Bot(\"Alpha\")\nb.say_hello()",
+  "checker": {
+    "type": "output_contains",
+    "expected": "Bot Alpha reporting!",
+    "case_sensitive": false
+  },
+  "hints": [
+    "Use class Bot:",
+    "def __init__(self, name): self.name = name",
+    "In say_hello(), use print(f\"Bot {self.name} reporting!\")"
+  ],
+  "points": 100,
+  "difficulty": "advanced"
+}

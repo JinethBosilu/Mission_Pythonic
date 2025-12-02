@@ -1,0 +1,20 @@
+{
+  "id": "level_006",
+  "title": "Dictionaries",
+  "mission_log": "Map usernames to their password hints to unlock accounts.",
+  "challenge": "Given users = {\"neo\": \"redpill\", \"trinity\": \"matrix\"}, print the hint for \"neo\".",
+  "starter_code": "# Access the password hint\nusers = {\"neo\": \"redpill\", \"trinity\": \"matrix\"}\n\n# Print neo's hint\nprint()",
+  "solution": "users = {\"neo\": \"redpill\", \"trinity\": \"matrix\"}\nprint(users[\"neo\"])",
+  "checker": {
+    "type": "output_contains",
+    "expected": "redpill",
+    "case_sensitive": false
+  },
+  "hints": [
+    "Access dictionary values using users[\"neo\"].",
+    "Don't forget the quotes around the key name.",
+    "Use print(users[\"neo\"])."
+  ],
+  "points": 100,
+  "difficulty": "intermediate"
+}

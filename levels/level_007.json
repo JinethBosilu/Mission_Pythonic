@@ -1,0 +1,20 @@
+{
+  "id": "level_007",
+  "title": "Functions",
+  "mission_log": "Automate repetitive tasks. Build a function to decrypt messages.",
+  "challenge": "Define a function greet(name) that prints \"Hello, <name>!\".",
+  "starter_code": "# Define the greet function\ndef greet(name):\n    print()\n\n# Test it\ngreet(\"Neo\")",
+  "solution": "def greet(name):\n    print(f\"Hello, {name}!\")\n\ngreet(\"Neo\")",
+  "checker": {
+    "type": "output_contains",
+    "expected": "Hello, Neo!",
+    "case_sensitive": false
+  },
+  "hints": [
+    "Use def greet(name):",
+    "Use print() inside the function.",
+    "Use an f-string: print(f\"Hello, {name}!\")"
+  ],
+  "points": 100,
+  "difficulty": "intermediate"
+}

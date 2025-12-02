@@ -1,0 +1,25 @@
+{
+  "id": "level_008",
+  "title": "File Handling",
+  "mission_log": "Hidden logs are stored in files. Read them to find the next clue.",
+  "challenge": "Read a file clue.txt and print its contents.",
+  "starter_code": "# Read the file\nwith open(\"clue.txt\", \"r\") as file:\n    contents = \n    print()",
+  "solution": "with open(\"clue.txt\", \"r\") as file:\n    contents = file.read()\n    print(contents)",
+  "checker": {
+    "type": "output_contains",
+    "expected": "SECRET_MESSAGE",
+    "case_sensitive": false,
+    "note": "Game will create clue.txt with 'SECRET_MESSAGE: The key is Python!' before testing"
+  },
+  "hints": [
+    "Use with open(\"clue.txt\", \"r\") as file:",
+    "Use file.read() to read the contents.",
+    "Don't forget to print the contents!"
+  ],
+  "points": 100,
+  "difficulty": "advanced",
+  "requires_file": {
+    "filename": "clue.txt",
+    "content": "SECRET_MESSAGE: The key is Python!"
+  }
+}

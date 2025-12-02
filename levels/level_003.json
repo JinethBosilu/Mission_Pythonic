@@ -1,0 +1,28 @@
+{
+  "id": "level_003",
+  "title": "Conditionals",
+  "mission_log": "Security system active! You must choose the correct path to avoid detection.",
+  "challenge": "If security_level > 5, print \"Alert!\". Otherwise, print \"Safe\".",
+  "starter_code": "# Check the security level\nsecurity_level = 3\n\nif :\n    print()\nelse:\n    print()",
+  "solution": "security_level = 3\n\nif security_level > 5:\n    print(\"Alert!\")\nelse:\n    print(\"Safe\")",
+  "checker": {
+    "type": "multi_test",
+    "tests": [
+      {
+        "code_modification": "security_level = 3",
+        "expected_output": "Safe"
+      },
+      {
+        "code_modification": "security_level = 7",
+        "expected_output": "Alert!"
+      }
+    ]
+  },
+  "hints": [
+    "Use if, else statements.",
+    "Compare numbers with >.",
+    "Don't forget the colon : after if and else"
+  ],
+  "points": 100,
+  "difficulty": "beginner"
+}

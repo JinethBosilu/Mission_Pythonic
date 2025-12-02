@@ -1,0 +1,20 @@
+{
+  "id": "level_002",
+  "title": "Data Types & Casting",
+  "mission_log": "The firewall encrypted passwords as strings. Convert them to integers to bypass security.",
+  "challenge": "You have \"123\" and \"456\". Add them as numbers and print the result.",
+  "starter_code": "# Convert strings to numbers and add them\nnum1 = \"123\"\nnum2 = \"456\"\n\n# Add and print the result\nresult = \nprint()",
+  "solution": "num1 = \"123\"\nnum2 = \"456\"\nresult = int(num1) + int(num2)\nprint(result)",
+  "checker": {
+    "type": "output_contains",
+    "expected": "579",
+    "case_sensitive": false
+  },
+  "hints": [
+    "Strings can be converted to integers with int().",
+    "Use int(num1) + int(num2)",
+    "Don't forget print()."
+  ],
+  "points": 100,
+  "difficulty": "beginner"
+}

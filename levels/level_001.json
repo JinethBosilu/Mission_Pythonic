@@ -1,0 +1,20 @@
+{
+  "id": "level_001",
+  "title": "Variables & Input/Output",
+  "mission_log": "Rookie hacker, your first task is to rename a secret file using Python variables. Remember: variables store data, and print() shows output.",
+  "challenge": "Rename the file secret.txt to hacked.txt and print the new file name.",
+  "starter_code": "# Rename the file\nold_name = \"secret.txt\"\nnew_name = \n\n# Print the new file name\nprint()",
+  "solution": "old_name = \"secret.txt\"\nnew_name = \"hacked.txt\"\nprint(new_name)",
+  "checker": {
+    "type": "output_contains",
+    "expected": "hacked.txt",
+    "case_sensitive": false
+  },
+  "hints": [
+    "Use a variable to store the file name.",
+    "Use print() to display it.",
+    "Remember to put quotes around text: \"hacked.txt\""
+  ],
+  "points": 100,
+  "difficulty": "beginner"
+}

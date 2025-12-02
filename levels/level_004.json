@@ -1,0 +1,19 @@
+{
+  "id": "level_004",
+  "title": "Loops",
+  "mission_log": "Multiple alarms are triggered. Loop through them to deactivate.",
+  "challenge": "Print numbers 1 to 5 using a loop.",
+  "starter_code": "# Deactivate alarms 1 through 5\nfor  in :\n    print()",
+  "solution": "for i in range(1, 6):\n    print(i)",
+  "checker": {
+    "type": "output_lines",
+    "expected": ["1", "2", "3", "4", "5"]
+  },
+  "hints": [
+    "Use for i in range(1, 6):",
+    "Use print(i) inside the loop.",
+    "Remember to indent the code inside the loop!"
+  ],
+  "points": 100,
+  "difficulty": "beginner"
+}
