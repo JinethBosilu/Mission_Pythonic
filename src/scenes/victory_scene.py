@@ -13,6 +13,10 @@ class VictoryScene:
     
     def setup(self):
         """Initialize the victory scene."""
+        # Cleanup old elements
+        if self.menu_button is not None:
+            self.menu_button.kill()
+        
         # Create menu button (centered)
         button_width = 300
         button_height = 60

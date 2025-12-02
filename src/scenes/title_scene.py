@@ -15,6 +15,10 @@ class TitleScene:
     
     def setup(self):
         """Initialize the title scene."""
+        # Cleanup old elements
+        if self.start_button is not None:
+            self.start_button.kill()
+        
         # Create start button (centered and responsive)
         button_width = 300
         button_height = 60

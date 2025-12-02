@@ -96,7 +96,8 @@ class Game:
                         pygame.RESIZABLE
                     )
                     self.ui_manager.set_window_resolution((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-                    # Reinitialize current scene for new size
+                    # Clear and reinitialize current scene for new size
+                    self.ui_manager.clear_and_reset()
                     if self.game_state.current_scene in self.scenes:
                         self.scenes[self.game_state.current_scene].setup()
                 

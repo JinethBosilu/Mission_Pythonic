@@ -14,6 +14,12 @@ class NameInputScene:
     
     def setup(self):
         """Initialize the name input scene."""
+        # Cleanup old elements
+        if self.name_input is not None:
+            self.name_input.kill()
+        if self.submit_button is not None:
+            self.submit_button.kill()
+        
         # Create name input field (centered and responsive)
         input_width = 400
         input_height = 50

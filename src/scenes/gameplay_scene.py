@@ -22,6 +22,20 @@ class GameplayScene:
         if not level:
             return
         
+        # Cleanup old elements
+        if self.code_textbox is not None:
+            self.code_textbox.kill()
+        if self.run_button is not None:
+            self.run_button.kill()
+        if self.hint_button is not None:
+            self.hint_button.kill()
+        if self.solution_button is not None:
+            self.solution_button.kill()
+        if self.back_button is not None:
+            self.back_button.kill()
+        if self.result_label is not None:
+            self.result_label.kill()
+        
         # Code editor text box
         self.code_textbox = pygame_gui.elements.UITextBox(
             html_text="",

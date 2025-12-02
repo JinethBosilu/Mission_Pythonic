@@ -13,6 +13,9 @@ class LevelSelectScene:
     
     def setup(self):
         """Initialize the level select scene."""
+        # Cleanup old buttons
+        for button in self.level_buttons:
+            button.kill()
         self.level_buttons = []
         
         # Create level buttons in a grid
