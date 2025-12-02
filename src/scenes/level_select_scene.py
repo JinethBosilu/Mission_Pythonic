@@ -10,6 +10,8 @@ class LevelSelectScene:
     def __init__(self, game):
         self.game = game
         self.level_buttons = []
+        self.back_button = None
+        self.quit_button = None
     
     def setup(self):
         """Initialize the level select scene."""
@@ -17,6 +19,11 @@ class LevelSelectScene:
         for button in self.level_buttons:
             button.kill()
         self.level_buttons = []
+        
+        if self.back_button is not None:
+            self.back_button.kill()
+        if self.quit_button is not None:
+            self.quit_button.kill()
         
         # Create level buttons in a grid
         levels = self.game.game_state.get_all_levels()
@@ -52,18 +59,46 @@ class LevelSelectScene:
             )
             button.level_id = level.id
             self.level_buttons.append(button)
+        
+        # Add back and quit buttons at the bottom
+        button_width_bottom = 200
+        button_height_bottom = 50
+        spacing_bottom = 20
+        bottom_y = self.game.SCREEN_HEIGHT - 100
+        
+        # Calculate positions for centered buttons
+        total_width = (button_width_bottom * 2) + spacing_bottom
+        start_x = (self.game.SCREEN_WIDTH - total_width) // 2
+        
+        self.back_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((start_x, bottom_y), (button_width_bottom, button_height_bottom)),
+            text='<< BACK TO MENU',
+            manager=self.game.ui_manager
+        )
+        
+        self.quit_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((start_x + button_width_bottom + spacing_bottom, bottom_y), (button_width_bottom, button_height_bottom)),
+            text='QUIT GAME',
+            manager=self.game.ui_manager
+        )
     
     def handle_event(self, event):
         """Handle events for level select scene."""
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
-            for button in self.level_buttons:
-                if event.ui_element == button:
-                    self.game.game_state.current_level_id = button.level_id
-                    self.game.game_state.user_code = ""
-                    self.game.game_state.current_hint_index = 0
-                    self.game.game_state.show_solution = False
-                    self.game.change_scene(GameScene.GAMEPLAY)
-                    break
+            if event.ui_element == self.back_button:
+                self.game.change_scene(GameScene.TITLE)
+            elif event.ui_element == self.quit_button:
+                self.game.running = False
+            else:
+                for button in self.level_buttons:
+                    if event.ui_element == button:
+                        self.game.game_state.current_level_id = button.level_id
+                        self.game.game_state.user_code = ""
+                        self.game.game_state.current_hint_index = 0
+                        self.game.game_state.show_solution = False
+                        self.game.game_state.reset_attempts()
+                        self.game.change_scene(GameScene.GAMEPLAY)
+                        break
     
     def update(self, dt):
         """Update level select scene."""

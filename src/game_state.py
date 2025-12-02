@@ -51,6 +51,44 @@ class GameState:
         self.timer_active = False
         self.timer_paused = False
         self.pause_start_time = 0
+        
+        # Troll messages for various situations
+        self.time_up_messages = [
+            "You can't even solve this? Pathetic.",
+            "A snail could code faster than you.",
+            "Security detected your incompetence.",
+            "Maybe Python isn't for you...",
+            "The firewall laughs at your attempt.",
+            "Too slow! The system has locked you out.",
+            "Amateur hour is over. Try again.",
+            "Did you fall asleep at the keyboard?",
+            "This is beginner level and you failed...",
+            "The AI just called you 'obsolete'."
+        ]
+        
+        self.failure_taunts = [
+            "Wrong! Did you even read the instructions?",
+            "Nice try... NOT.",
+            "Error 404: Brain not found.",
+            "The system rejects your mediocrity.",
+            "Syntax error: Intelligence missing.",
+            "This code is worse than a malware.",
+            "Security system: 'Is this a joke?'",
+            "Even a script kiddie could do better.",
+            "Runtime error: Skill not installed."
+        ]
+        
+        self.multiple_failures = [
+            "Again? Seriously?",
+            "How many times are you going to fail?",
+            "The definition of insanity...",
+            "Maybe use the hints? Just saying...",
+            "The system is getting bored watching you fail.",
+            "Perhaps coding isn't your calling?",
+            "CTRL+C, CTRL+V. Learn it."
+        ]
+        
+        self.attempt_count = 0
     
     def load_saved_game(self):
         """Load saved game progress."""
@@ -92,6 +130,7 @@ class GameState:
             self.current_hint_index = 0
             self.show_solution = False
             self.user_code = ""
+            self.reset_attempts()
             return True
         return False
     
@@ -169,3 +208,20 @@ class GameState:
             return 0
         # Lose 5 points per 10 seconds overtime
         return min(50, int(overtime / 10) * 5)
+    
+    def get_time_up_message(self) -> str:
+        """Get a random trolling message for time running out."""
+        import random
+        return random.choice(self.time_up_messages)
+    
+    def get_failure_message(self) -> str:
+        """Get a trolling message for failed attempts."""
+        import random
+        self.attempt_count += 1
+        if self.attempt_count > 3:
+            return random.choice(self.multiple_failures)
+        return random.choice(self.failure_taunts)
+    
+    def reset_attempts(self):
+        """Reset attempt counter for new level."""
+        self.attempt_count = 0

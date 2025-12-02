@@ -18,6 +18,8 @@ class GameplayScene:
         self.next_button = None
         self.result_label = None
         self.level_completed = False
+        self.flash_screen = False
+        self.flash_timer = 0
     
     def setup(self):
         """Initialize the gameplay scene."""
@@ -157,8 +159,11 @@ class GameplayScene:
         
         # Check if time is up
         if self.game.game_state.is_time_up():
-            penalty = self.game.game_state.get_time_penalty()
-            self.result_label.set_text(f"[HACKED!] Time's up! Security detected you. Penalty: -{penalty} points")
+            troll_msg = self.game.game_state.get_time_up_message()
+            self.result_label.set_text(f"[SYSTEM LOCKOUT] {troll_msg}")
+            # Flash screen red
+            self.flash_screen = True
+            self.flash_timer = 0.5
             return
         
         # Evaluate the code
@@ -168,10 +173,24 @@ class GameplayScene:
             self.level_completed = True
             points_earned, penalty = self.game.game_state.complete_current_level()
             
+            import random
+            success_msgs = [
+                "Finally!",
+                "Took you long enough.",
+                "Not bad... for a beginner.",
+                "Success! Barely.",
+                "You did it. Congratulations, I guess.",
+                "Correct. Even a broken clock is right twice a day.",
+                "Success! The bar was low, but you cleared it.",
+                "Nice. Now try the next one without hints."
+            ]
+            
+            sass = random.choice(success_msgs)
+            
             if penalty > 0:
-                self.result_label.set_text(f"[SUCCESS!] {message} | Earned: {points_earned} pts (Penalty: -{penalty})")
+                self.result_label.set_text(f"[{sass}] Earned: {points_earned} pts (Penalty: -{penalty}pts - Too slow!)")
             else:
-                self.result_label.set_text(f"[SUCCESS!] {message} | Earned: {points_earned} pts")
+                self.result_label.set_text(f"[{sass}] Earned: {points_earned} pts")
             
             # Show next level button
             if not self.game.game_state.is_game_complete():
@@ -180,22 +199,42 @@ class GameplayScene:
                 # All levels complete - go to victory
                 self.game.change_scene(GameScene.VICTORY)
         else:
-            self.result_label.set_text(f"[FAILED] {message}")
+            troll_msg = self.game.game_state.get_failure_message()
+            self.result_label.set_text(f"[FAILED] {message} | {troll_msg}")
     
     def _show_hint(self):
         """Show the next hint."""
         level = self.game.game_state.get_current_level()
         if not level or not level.hints:
-            self.result_label.set_text("No hints available.")
+            self.result_label.set_text("No hints available. You're on your own, genius.")
             return
         
         hint_index = self.game.game_state.current_hint_index
         if hint_index < len(level.hints):
             hint = level.hints[hint_index]
-            self.result_label.set_text(f"HINT {hint_index + 1}: {hint}")
+            
+            # Add sarcastic comments based on hint count
+            if hint_index == 0:
+                prefix = "HINT 1"
+            elif hint_index == 1:
+                prefix = "HINT 2 (Really?)"
+            elif hint_index == 2:
+                prefix = "HINT 3 (Last one, try harder)"
+            else:
+                prefix = f"HINT {hint_index + 1}"
+            
+            self.result_label.set_text(f"{prefix}: {hint}")
             self.game.game_state.current_hint_index += 1
         else:
-            self.result_label.set_text("No more hints available.")
+            import random
+            no_hint_msgs = [
+                "No more hints. Figure it out yourself.",
+                "That's all the help you're getting.",
+                "Hints exhausted. Good luck, you'll need it.",
+                "Out of hints. Time to use that brain.",
+                "No more hints available. Maybe try reading?"
+            ]
+            self.result_label.set_text(random.choice(no_hint_msgs))
     
     def _show_solution(self):
         """Show the solution."""
@@ -203,9 +242,21 @@ class GameplayScene:
         if not level:
             return
         
+        import random
+        solution_taunts = [
+            "Giving up already? Typical.",
+            "Can't solve it yourself? Disappointing.",
+            "So much for being a 'hacker'...",
+            "Solution loaded. At least try to understand it.",
+            "Cheater. The AI judges you.",
+            "Solution revealed. Don't pretend you could've done it.",
+            "Pathetic. But here's the answer anyway.",
+            "Even with the solution, you'll probably mess it up."
+        ]
+        
         self.code_textbox.set_text(level.solution)
         self.game.game_state.user_code = level.solution
-        self.result_label.set_text("Solution loaded. Press RUN to test it.")
+        self.result_label.set_text(random.choice(solution_taunts))
     
     def _restart_level(self):
         """Restart the current level."""
@@ -237,13 +288,24 @@ class GameplayScene:
     
     def update(self, dt):
         """Update gameplay scene."""
-        pass
+        # Update flash effect
+        if self.flash_screen:
+            self.flash_timer -= dt
+            if self.flash_timer <= 0:
+                self.flash_screen = False
     
     def draw(self, screen):
         """Draw gameplay scene."""
         level = self.game.game_state.get_current_level()
         if not level:
             return
+        
+        # Draw red flash overlay if time is up
+        if self.flash_screen:
+            flash_surface = pygame.Surface((self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT))
+            flash_surface.set_alpha(100)
+            flash_surface.fill(self.game.RED)
+            screen.blit(flash_surface, (0, 0))
         
         # Draw level title
         title_text = self.game.heading_font.render(level.title, True, self.game.GREEN)
