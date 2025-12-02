@@ -24,5 +24,7 @@
     "Add else: and print \"Safe\" (also indented)"
   ],
   "points": 100,
-  "difficulty": "beginner"
+  "difficulty": "beginner",
+  "time_limit": 240,
+  "time_warning": 60
 }

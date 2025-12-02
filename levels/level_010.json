@@ -17,5 +17,7 @@
     "Then print it: print(num)"
   ],
   "points": 100,
-  "difficulty": "advanced"
+  "difficulty": "advanced",
+  "time_limit": 300,
+  "time_warning": 60
 }

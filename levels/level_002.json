@@ -16,5 +16,7 @@
     "Print the result: print(result)"
   ],
   "points": 100,
-  "difficulty": "beginner"
+  "difficulty": "beginner",
+  "time_limit": 180,
+  "time_warning": 60
 }

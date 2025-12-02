@@ -16,5 +16,7 @@
     "Complete line: print(f\"Bot {self.name} reporting!\") - indent it under def say_hello"
   ],
   "points": 100,
-  "difficulty": "advanced"
+  "difficulty": "advanced",
+  "time_limit": 360,
+  "time_warning": 90
 }

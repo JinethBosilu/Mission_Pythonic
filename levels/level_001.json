@@ -16,5 +16,7 @@
     "Then print it with: print(new_name)"
   ],
   "points": 100,
-  "difficulty": "beginner"
+  "difficulty": "beginner",
+  "time_limit": 180,
+  "time_warning": 60
 }

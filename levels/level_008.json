@@ -18,6 +18,8 @@
   ],
   "points": 100,
   "difficulty": "advanced",
+  "time_limit": 360,
+  "time_warning": 90,
   "requires_file": {
     "filename": "clue.txt",
     "content": "SECRET_MESSAGE: The key is Python!"

@@ -16,5 +16,7 @@
     "Make sure print is indented under the def line"
   ],
   "points": 100,
-  "difficulty": "intermediate"
+  "difficulty": "intermediate",
+  "time_limit": 300,
+  "time_warning": 60
 }

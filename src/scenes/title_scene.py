@@ -9,40 +9,92 @@ class TitleScene:
     
     def __init__(self, game):
         self.game = game
-        self.start_button = None
+        self.continue_button = None
+        self.new_game_button = None
+        self.settings_button = None
+        self.quit_button = None
         self.blink_timer = 0
         self.show_text = True
     
     def setup(self):
         """Initialize the title scene."""
         # Cleanup old elements
-        if self.start_button is not None:
-            self.start_button.kill()
+        if self.continue_button is not None:
+            self.continue_button.kill()
+        if self.new_game_button is not None:
+            self.new_game_button.kill()
+        if self.settings_button is not None:
+            self.settings_button.kill()
+        if self.quit_button is not None:
+            self.quit_button.kill()
         
-        # Create start button (centered and responsive)
+        # Button dimensions
         button_width = 300
-        button_height = 60
+        button_height = 50
+        spacing = 15
         x = (self.game.SCREEN_WIDTH - button_width) // 2
-        y = self.game.SCREEN_HEIGHT // 2
+        start_y = self.game.SCREEN_HEIGHT // 2 + 50
         
-        self.start_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((x, y), (button_width, button_height)),
-            text='[PRESS START]',
+        # Check if there's a saved game
+        has_save = self.game.game_state.save_system.has_save()
+        
+        if has_save:
+            # Show Continue button
+            self.continue_button = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect((x, start_y), (button_width, button_height)),
+                text='[CONTINUE]',
+                manager=self.game.ui_manager
+            )
+            # Show New Game button
+            self.new_game_button = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect((x, start_y + button_height + spacing), (button_width, button_height)),
+                text='NEW GAME',
+                manager=self.game.ui_manager
+            )
+        else:
+            # Just show Start button
+            self.new_game_button = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect((x, start_y), (button_width, button_height)),
+                text='[START GAME]',
+                manager=self.game.ui_manager
+            )
+        
+        # Settings button
+        settings_y = start_y + (2 if has_save else 1) * (button_height + spacing)
+        self.settings_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((x, settings_y), (button_width, button_height)),
+            text='SETTINGS',
+            manager=self.game.ui_manager
+        )
+        
+        # Quit button
+        quit_y = settings_y + button_height + spacing
+        self.quit_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((x, quit_y), (button_width, button_height)),
+            text='QUIT',
             manager=self.game.ui_manager
         )
     
     def handle_event(self, event):
         """Handle events for title scene."""
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
-            if event.ui_element == self.start_button:
-                # Check if there's a saved game
+            if event.ui_element == self.continue_button:
+                # Load saved game
+                self.game.game_state.load_saved_game()
+                self.game.change_scene(GameScene.LEVEL_SELECT)
+            elif event.ui_element == self.new_game_button:
+                # Delete old save and start new
                 if self.game.game_state.save_system.has_save():
-                    # Load saved game
-                    self.game.game_state.load_saved_game()
-                    self.game.change_scene(GameScene.LEVEL_SELECT)
-                else:
-                    # New game - ask for name
-                    self.game.change_scene(GameScene.NAME_INPUT)
+                    self.game.game_state.save_system.delete_save()
+                # Reset game state
+                self.game.game_state.player_name = ""
+                self.game.game_state.completed_levels = []
+                self.game.game_state.total_score = 0
+                self.game.change_scene(GameScene.NAME_INPUT)
+            elif event.ui_element == self.settings_button:
+                self.game.change_scene(GameScene.SETTINGS)
+            elif event.ui_element == self.quit_button:
+                self.game.running = False
     
     def update(self, dt):
         """Update title scene."""

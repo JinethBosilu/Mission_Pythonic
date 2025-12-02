@@ -12,6 +12,8 @@ class GameScene(Enum):
     NAME_INPUT = "name_input"
     LEVEL_SELECT = "level_select"
     GAMEPLAY = "gameplay"
+    PAUSE = "pause"
+    SETTINGS = "settings"
     VICTORY = "victory"
 
 
@@ -42,6 +44,13 @@ class GameState:
         self.show_solution = False
         self.last_result = None
         self.last_message = ""
+        
+        # Timer state
+        self.level_start_time = 0
+        self.elapsed_time = 0
+        self.timer_active = False
+        self.timer_paused = False
+        self.pause_start_time = 0
     
     def load_saved_game(self):
         """Load saved game progress."""
@@ -95,9 +104,68 @@ class GameState:
         level = self.get_current_level()
         if level and level.id not in self.completed_levels:
             self.completed_levels.append(level.id)
-            self.total_score += level.points
+            # Apply time penalty if over time
+            penalty = self.get_time_penalty()
+            points_earned = max(10, level.points - penalty)  # Minimum 10 points
+            self.total_score += points_earned
+            self.stop_timer()
             self.save_game()
+            return points_earned, penalty
+        return 0, 0
     
     def is_game_complete(self) -> bool:
         """Check if all levels are completed."""
         return len(self.completed_levels) >= self.level_loader.get_level_count()
+    
+    def start_level_timer(self):
+        """Start the timer for the current level."""
+        import time
+        self.level_start_time = time.time()
+        self.elapsed_time = 0
+        self.timer_active = True
+        self.timer_paused = False
+    
+    def update_timer(self):
+        """Update elapsed time if timer is active."""
+        if self.timer_active and not self.timer_paused:
+            import time
+            self.elapsed_time = time.time() - self.level_start_time
+    
+    def pause_timer(self):
+        """Pause the timer."""
+        if self.timer_active and not self.timer_paused:
+            import time
+            self.timer_paused = True
+            self.pause_start_time = time.time()
+    
+    def resume_timer(self):
+        """Resume the timer."""
+        if self.timer_active and self.timer_paused:
+            import time
+            pause_duration = time.time() - self.pause_start_time
+            self.level_start_time += pause_duration
+            self.timer_paused = False
+    
+    def stop_timer(self):
+        """Stop the timer."""
+        self.timer_active = False
+        self.timer_paused = False
+    
+    def get_time_remaining(self) -> float:
+        """Get remaining time for current level."""
+        level = self.get_current_level()
+        if not level or not hasattr(level, 'time_limit'):
+            return float('inf')
+        return level.time_limit - self.elapsed_time
+    
+    def is_time_up(self) -> bool:
+        """Check if time has run out."""
+        return self.get_time_remaining() <= 0
+    
+    def get_time_penalty(self) -> int:
+        """Calculate point penalty for going over time."""
+        overtime = -self.get_time_remaining()
+        if overtime <= 0:
+            return 0
+        # Lose 5 points per 10 seconds overtime
+        return min(50, int(overtime / 10) * 5)

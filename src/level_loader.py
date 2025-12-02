@@ -19,6 +19,8 @@ class Level:
         self.points = data.get("points", 100)
         self.difficulty = data.get("difficulty", "beginner")
         self.requires_file = data.get("requires_file", None)
+        self.time_limit = data.get("time_limit", 300)  # Default 5 minutes
+        self.time_warning = data.get("time_warning", 60)  # Warning at 1 minute left
 
 
 class LevelLoader:

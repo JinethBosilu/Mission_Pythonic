@@ -80,11 +80,27 @@ class LevelSelectScene:
         header_rect = header_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 80))
         screen.blit(header_text, header_rect)
         
-        # Draw score
-        score_text = self.game.text_font.render(
-            f"Total Score: {self.game.game_state.total_score}", 
+        # Draw progress
+        total_levels = self.game.game_state.level_loader.get_level_count()
+        completed = len(self.game.game_state.completed_levels)
+        progress_text = self.game.text_font.render(
+            f"Progress: {completed}/{total_levels} | Total Score: {self.game.game_state.total_score}", 
             True, 
             self.game.DARK_GREEN
         )
-        score_rect = score_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 110))
-        screen.blit(score_text, score_rect)
+        progress_rect = progress_text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 110))
+        screen.blit(progress_text, progress_rect)
+        
+        # Draw progress bar
+        bar_width = 400
+        bar_height = 20
+        bar_x = (self.game.SCREEN_WIDTH - bar_width) // 2
+        bar_y = 130
+        
+        # Draw background
+        pygame.draw.rect(screen, self.game.GRAY, (bar_x, bar_y, bar_width, bar_height), 2)
+        
+        # Draw progress fill
+        fill_width = int((completed / total_levels) * bar_width) if total_levels > 0 else 0
+        if fill_width > 0:
+            pygame.draw.rect(screen, self.game.GREEN, (bar_x + 2, bar_y + 2, fill_width - 4, bar_height - 4))

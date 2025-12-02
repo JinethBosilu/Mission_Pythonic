@@ -7,6 +7,8 @@ from .scenes.title_scene import TitleScene
 from .scenes.name_input_scene import NameInputScene
 from .scenes.level_select_scene import LevelSelectScene
 from .scenes.gameplay_scene import GameplayScene
+from .scenes.pause_scene import PauseScene
+from .scenes.settings_scene import SettingsScene
 from .scenes.victory_scene import VictoryScene
 
 
@@ -50,6 +52,8 @@ class Game:
             GameScene.NAME_INPUT: NameInputScene(self),
             GameScene.LEVEL_SELECT: LevelSelectScene(self),
             GameScene.GAMEPLAY: GameplayScene(self),
+            GameScene.PAUSE: PauseScene(self),
+            GameScene.SETTINGS: SettingsScene(self),
             GameScene.VICTORY: VictoryScene(self),
         }
         
@@ -111,6 +115,10 @@ class Game:
             
             # Update
             self.ui_manager.update(time_delta)
+            
+            # Update game timer if in gameplay
+            if self.game_state.current_scene == GameScene.GAMEPLAY:
+                self.game_state.update_timer()
             
             current_scene = self.scenes.get(self.game_state.current_scene)
             if current_scene:

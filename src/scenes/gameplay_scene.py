@@ -14,13 +14,19 @@ class GameplayScene:
         self.hint_button = None
         self.solution_button = None
         self.back_button = None
+        self.restart_button = None
+        self.next_button = None
         self.result_label = None
+        self.level_completed = False
     
     def setup(self):
         """Initialize the gameplay scene."""
         level = self.game.game_state.get_current_level()
         if not level:
             return
+        
+        # Reset completion state
+        self.level_completed = False
         
         # Cleanup old elements
         if self.code_textbox is not None:
@@ -33,8 +39,15 @@ class GameplayScene:
             self.solution_button.kill()
         if self.back_button is not None:
             self.back_button.kill()
+        if self.restart_button is not None:
+            self.restart_button.kill()
+        if self.next_button is not None:
+            self.next_button.kill()
         if self.result_label is not None:
             self.result_label.kill()
+        
+        # Start timer for this level
+        self.game.game_state.start_level_timer()
         
         # Code editor text box
         self.code_textbox = pygame_gui.elements.UITextBox(
@@ -77,12 +90,27 @@ class GameplayScene:
             manager=self.game.ui_manager
         )
         
+        # Restart button
+        self.restart_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((520, 610), (150, 40)),
+            text='RESTART',
+            manager=self.game.ui_manager
+        )
+        
         # Back button
         self.back_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((520, 610), (150, 40)),
+            relative_rect=pygame.Rect((680, 610), (150, 40)),
             text='BACK TO MENU',
             manager=self.game.ui_manager
         )
+        
+        # Next level button (hidden initially)
+        self.next_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((840, 610), (160, 40)),
+            text='NEXT LEVEL >>',
+            manager=self.game.ui_manager
+        )
+        self.next_button.hide()
         
         # Result label
         self.result_label = pygame_gui.elements.UILabel(
@@ -100,13 +128,22 @@ class GameplayScene:
                 self._show_hint()
             elif event.ui_element == self.solution_button:
                 self._show_solution()
+            elif event.ui_element == self.restart_button:
+                self._restart_level()
+            elif event.ui_element == self.next_button:
+                self._next_level()
             elif event.ui_element == self.back_button:
+                self.game.game_state.stop_timer()
                 self.game.change_scene(GameScene.LEVEL_SELECT)
         
-        # Handle F5 key for running code
+        # Handle keyboard shortcuts
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_F5:
                 self._run_code()
+            elif event.key == pygame.K_ESCAPE:
+                # Pause game
+                self.game.game_state.pause_timer()
+                self.game.change_scene(GameScene.PAUSE)
     
     def _run_code(self):
         """Run the user's code."""
@@ -118,15 +155,29 @@ class GameplayScene:
         user_code = self.code_textbox.get_text()
         self.game.game_state.user_code = user_code
         
+        # Check if time is up
+        if self.game.game_state.is_time_up():
+            penalty = self.game.game_state.get_time_penalty()
+            self.result_label.set_text(f"[HACKED!] Time's up! Security detected you. Penalty: -{penalty} points")
+            return
+        
         # Evaluate the code
         success, message = self.game.game_state.evaluator.evaluate_level(user_code, level)
         
         if success:
-            self.result_label.set_text(f"[SUCCESS!] {message}")
-            self.game.game_state.complete_current_level()
+            self.level_completed = True
+            points_earned, penalty = self.game.game_state.complete_current_level()
             
-            # Check if game is complete
-            if self.game.game_state.is_game_complete():
+            if penalty > 0:
+                self.result_label.set_text(f"[SUCCESS!] {message} | Earned: {points_earned} pts (Penalty: -{penalty})")
+            else:
+                self.result_label.set_text(f"[SUCCESS!] {message} | Earned: {points_earned} pts")
+            
+            # Show next level button
+            if not self.game.game_state.is_game_complete():
+                self.next_button.show()
+            else:
+                # All levels complete - go to victory
                 self.game.change_scene(GameScene.VICTORY)
         else:
             self.result_label.set_text(f"[FAILED] {message}")
@@ -156,6 +207,34 @@ class GameplayScene:
         self.game.game_state.user_code = level.solution
         self.result_label.set_text("Solution loaded. Press RUN to test it.")
     
+    def _restart_level(self):
+        """Restart the current level."""
+        level = self.game.game_state.get_current_level()
+        if not level:
+            return
+        
+        # Reset level state
+        self.code_textbox.set_text(level.starter_code)
+        self.game.game_state.user_code = level.starter_code
+        self.game.game_state.current_hint_index = 0
+        self.game.game_state.show_solution = False
+        self.result_label.set_text("Level restarted.")
+        self.level_completed = False
+        self.next_button.hide()
+        
+        # Restart timer
+        self.game.game_state.start_level_timer()
+    
+    def _next_level(self):
+        """Go to the next level."""
+        if self.game.game_state.go_to_next_level():
+            # Reinitialize gameplay scene with new level
+            self.game.ui_manager.clear_and_reset()
+            self.setup()
+        else:
+            # No more levels - go to victory
+            self.game.change_scene(GameScene.VICTORY)
+    
     def update(self, dt):
         """Update gameplay scene."""
         pass
@@ -184,6 +263,25 @@ class GameplayScene:
             difficulty_color
         )
         screen.blit(difficulty_text, (20, 380))
+        
+        # Draw timer
+        time_remaining = self.game.game_state.get_time_remaining()
+        minutes = int(time_remaining // 60)
+        seconds = int(time_remaining % 60)
+        
+        # Change color based on time remaining
+        if time_remaining <= 0:
+            timer_color = self.game.RED
+            timer_text = "TIME'S UP!"
+        elif time_remaining <= level.time_warning:
+            timer_color = self.game.RED
+            timer_text = f"TIME: {minutes}:{seconds:02d} [WARNING!]"
+        else:
+            timer_color = self.game.GREEN
+            timer_text = f"TIME: {minutes}:{seconds:02d}"
+        
+        timer_surface = self.game.heading_font.render(timer_text, True, timer_color)
+        screen.blit(timer_surface, (20, 420))
     
     def _draw_text_panel(self, screen, title, text, x, y, width, height):
         """Draw a bordered text panel."""
