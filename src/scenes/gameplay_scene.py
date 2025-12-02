@@ -36,6 +36,14 @@ class GameplayScene:
         # Reset completion state
         self.level_completed = False
         
+        # Reset timeout overlay state
+        self.timeout_overlay = False
+        self.timeout_message = ""
+        self.timeout_restart_rect = None
+        self.timeout_menu_rect = None
+        self.flash_screen = False
+        self.flash_timer = 0
+        
         # Cleanup old elements
         if self.code_textbox is not None:
             self.code_textbox.kill()
@@ -289,16 +297,21 @@ class GameplayScene:
         center_x = self.game.SCREEN_WIDTH // 2
         center_y = self.game.SCREEN_HEIGHT // 2
         
+        # Position buttons inside the box at the bottom
+        # Box is 370 height, centered at center_y - 20
+        # Buttons should be at the bottom with some padding
+        button_y = center_y - 20 + 370 - button_height - 20  # 20px padding from bottom
+        
         self.timeout_restart_rect = pygame.Rect(
             center_x - button_width - spacing // 2, 
-            center_y + 80,
+            button_y,
             button_width, 
             button_height
         )
         
         self.timeout_menu_rect = pygame.Rect(
             center_x + spacing // 2, 
-            center_y + 80,
+            button_y,
             button_width, 
             button_height
         )
@@ -424,7 +437,7 @@ class GameplayScene:
         
         # Draw border box
         box_width = 700
-        box_height = 300
+        box_height = 370  # Increased to fit buttons inside
         box_x = (self.game.SCREEN_WIDTH - box_width) // 2
         box_y = (self.game.SCREEN_HEIGHT - box_height) // 2 - 20
         

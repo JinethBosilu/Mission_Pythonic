@@ -11,7 +11,6 @@ class TitleScene:
         self.game = game
         self.continue_button = None
         self.new_game_button = None
-        self.settings_button = None
         self.quit_button = None
         self.blink_timer = 0
         self.show_text = True
@@ -25,8 +24,6 @@ class TitleScene:
             self.continue_button.kill()
         if self.new_game_button is not None:
             self.new_game_button.kill()
-        if self.settings_button is not None:
-            self.settings_button.kill()
         if self.quit_button is not None:
             self.quit_button.kill()
         
@@ -61,16 +58,8 @@ class TitleScene:
                 manager=self.game.ui_manager
             )
         
-        # Settings button
-        settings_y = start_y + (2 if has_save else 1) * (button_height + spacing)
-        self.settings_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((x, settings_y), (button_width, button_height)),
-            text='SETTINGS',
-            manager=self.game.ui_manager
-        )
-        
         # Quit button
-        quit_y = settings_y + button_height + spacing
+        quit_y = start_y + (2 if has_save else 1) * (button_height + spacing)
         self.quit_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((x, quit_y), (button_width, button_height)),
             text='QUIT',
@@ -93,8 +82,6 @@ class TitleScene:
                 self.game.game_state.completed_levels = []
                 self.game.game_state.total_score = 0
                 self.game.change_scene(GameScene.NAME_INPUT)
-            elif event.ui_element == self.settings_button:
-                self.game.change_scene(GameScene.SETTINGS)
             elif event.ui_element == self.quit_button:
                 self.game.running = False
     

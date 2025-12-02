@@ -17,6 +17,6 @@
   ],
   "points": 100,
   "difficulty": "beginner",
-  "time_limit": 10,
-  "time_warning": 5
+  "time_limit": 60,
+  "time_warning": 20
 }

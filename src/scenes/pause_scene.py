@@ -11,7 +11,6 @@ class PauseScene:
         self.game = game
         self.resume_button = None
         self.restart_button = None
-        self.settings_button = None
         self.menu_button = None
         self.quit_button = None
         self.overlay_surface = None
@@ -25,8 +24,6 @@ class PauseScene:
             self.resume_button.kill()
         if self.restart_button is not None:
             self.restart_button.kill()
-        if self.settings_button is not None:
-            self.settings_button.kill()
         if self.menu_button is not None:
             self.menu_button.kill()
         if self.quit_button is not None:
@@ -42,7 +39,9 @@ class PauseScene:
         button_height = 50
         spacing = 20
         x = (self.game.SCREEN_WIDTH - button_width) // 2
-        start_y = self.game.SCREEN_HEIGHT // 2 - 150
+        # With 4 buttons now, center them better
+        total_button_height = 4 * button_height + 3 * spacing
+        start_y = (self.game.SCREEN_HEIGHT - total_button_height) // 2
         
         # Create buttons
         self.resume_button = pygame_gui.elements.UIButton(
@@ -57,20 +56,14 @@ class PauseScene:
             manager=self.game.ui_manager
         )
         
-        self.settings_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((x, start_y + 2 * (button_height + spacing)), (button_width, button_height)),
-            text='SETTINGS',
-            manager=self.game.ui_manager
-        )
-        
         self.menu_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((x, start_y + 3 * (button_height + spacing)), (button_width, button_height)),
+            relative_rect=pygame.Rect((x, start_y + 2 * (button_height + spacing)), (button_width, button_height)),
             text='BACK TO MENU',
             manager=self.game.ui_manager
         )
         
         self.quit_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((x, start_y + 4 * (button_height + spacing)), (button_width, button_height)),
+            relative_rect=pygame.Rect((x, start_y + 3 * (button_height + spacing)), (button_width, button_height)),
             text='QUIT GAME',
             manager=self.game.ui_manager
         )
@@ -79,14 +72,20 @@ class PauseScene:
         """Handle events for pause scene."""
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                # Resume game
+                # Resume game - don't reset timer
                 self.game.game_state.resume_timer()
-                self.game.change_scene(GameScene.GAMEPLAY)
+                self.game.ui_manager.clear_and_reset()
+                self.game.scenes[GameScene.GAMEPLAY].setup(preserve_timer=True)
+                self.game.game_state.current_scene = GameScene.GAMEPLAY
+                return
         
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == self.resume_button:
+                # Resume game - don't reset timer
                 self.game.game_state.resume_timer()
-                self.game.change_scene(GameScene.GAMEPLAY)
+                self.game.ui_manager.clear_and_reset()
+                self.game.scenes[GameScene.GAMEPLAY].setup(preserve_timer=True)
+                self.game.game_state.current_scene = GameScene.GAMEPLAY
             elif event.ui_element == self.restart_button:
                 # Restart current level
                 level = self.game.game_state.get_current_level()
@@ -96,8 +95,6 @@ class PauseScene:
                     self.game.game_state.show_solution = False
                     self.game.game_state.start_level_timer()
                 self.game.change_scene(GameScene.GAMEPLAY)
-            elif event.ui_element == self.settings_button:
-                self.game.change_scene(GameScene.SETTINGS)
             elif event.ui_element == self.menu_button:
                 self.game.game_state.stop_timer()
                 self.game.change_scene(GameScene.LEVEL_SELECT)
@@ -118,9 +115,10 @@ class PauseScene:
         # Draw semi-transparent overlay
         screen.blit(self.overlay_surface, (0, 0))
         
-        # Draw scan line effect
-        if int(self.scan_line_y) % 4 == 0:
-            pygame.draw.line(screen, self.game.DARK_GREEN, (0, int(self.scan_line_y)), (self.game.SCREEN_WIDTH, int(self.scan_line_y)), 2)
+        # Draw subtle scan line effect (very faint)
+        if int(self.scan_line_y) % 8 == 0:  # Less frequent
+            scan_color = (0, 20, 0)  # Very dark green, barely visible
+            pygame.draw.line(screen, scan_color, (0, int(self.scan_line_y)), (self.game.SCREEN_WIDTH, int(self.scan_line_y)), 1)
         
         # Draw glowing pulsing PAUSED title
         pulse = math.sin(self.pulse_timer)
@@ -128,17 +126,18 @@ class PauseScene:
         self.game.draw_glow_text(
             screen,
             "PAUSED",
-            (self.game.SCREEN_WIDTH // 2, 150),
+            (self.game.SCREEN_WIDTH // 2, 165),
             self.game.title_font,
             self.game.BRIGHT_GREEN,
-            glow_size=pulse_size
+            glow_size=pulse_size,
+            center=True
         )
         
         # Draw border box around title
         box_width = 400
         box_height = 100
         box_x = (self.game.SCREEN_WIDTH - box_width) // 2
-        box_y = 120
+        box_y = 125
         pygame.draw.rect(screen, self.game.DARK_GREEN, (box_x, box_y, box_width, box_height), 2)
         pygame.draw.rect(screen, self.game.GREEN, (box_x + 3, box_y + 3, box_width - 6, box_height - 6), 1)
         
@@ -167,7 +166,7 @@ class PauseScene:
         self.game.draw_glow_text(
             screen,
             "Press ESC to resume",
-            (self.game.SCREEN_WIDTH // 2, 200),
+            (self.game.SCREEN_WIDTH // 2, 240),
             self.game.text_font,
             self.game.GREEN,
             glow_size=1
